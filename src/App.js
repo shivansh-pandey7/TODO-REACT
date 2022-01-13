@@ -1,56 +1,59 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
-import { addTodo, deleteTodo } from './redux/Todo/actions'
-import { connect } from 'react-redux';
-import TodoItem from './TodoItem';
+import LoadingIndicator from './components/LoadingIndicator';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Input from './components/Input';
+import TodoItem from './components/TodoItem';
 
-const mapToStateProps = state => {
-    return {
-      todo : state.todoReducer.todo
+function App() {
+  const [todoList, setTodoList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getLatestList = () => {
+    setLoading(true);
+    axios.get('http://localhost:4000/posts')
+      .then(function(obj){
+          console.log(obj);
+          setTodoList(obj.data);
+          
+          setLoading(false);
+      }).catch(function() {
+        setTodoList([{id:1, title:'Nothing found!!!'}])
+        setLoading(false);
+      })
+  }
+
+
+
+  useEffect(() => {
+     axios.get('http://localhost:4000/posts')
+          .then(function(obj){
+              console.log(obj);
+              setTodoList(obj.data);
+              
+              setLoading(false);
+          }).catch(function() {
+            setTodoList([{id:1, title:'Nothing found!!!'}])
+            setLoading(false);
+          })
     }
-}
+  , [])
 
-const mapDispatchToProps = dispatch => {
-  return {
-    addTodo: (todo) => dispatch(addTodo(todo)),
-    deleteTodo: (id) => dispatch(deleteTodo(id))
-  }
-}
- 
-
-function App(props) {
-  const [input, setInput] = useState('');
- 
-  const add = () => {   
-    if(input){
-      props.addTodo({
-        title : input,
-        id : Date.now()
-      });
-      console.log(props);
-      setInput(''); 
-    }
-  }
-
-  const deleteItem = (id) => {
-      props.deleteTodo(id)
-  }
-
+  // axios.post('http://localhost:3000/posts', {})
+  // axios.put('http://localhost:3000/posts/1', {})
+  // axios.delete('http://localhost:3000/posts/1');
   return (
     <div className="App">
-      
-      <div className='app_container'>   
-      <div className='app_todoContainer'>
-          <div className='input'>
-          <input type='text' value={input} onChange={e => setInput(e.target.value)} />
-          <button onClick={add}>Add!</button>
-          </div>
-        {props.todo.map(item => <TodoItem data={props} key={item.id} deleteItem={deleteItem} title={item.title} id={item.id} />)}
-      </div>
-      </div>
+      {loading ? <LoadingIndicator/> :<div className='app_container'>
+        <div className='app_todoContainer'>
+            {todoList.map(item => <TodoItem deleteTodo={getLatestList}  title={item.title} key={item.id} id={item.id}/>)}
+
+        </div>
+        <Input updateList={getLatestList}/>
+      </div>}
     </div>
   );
 }
 
-export default connect(mapToStateProps, mapDispatchToProps)(App);
+export default App;
