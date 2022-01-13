@@ -1,0 +1,25 @@
+.wrap-loginform{
+    margin: auto;
+    text-align: center;
+}
+
+.loginform{
+    margin: auto;
+}
+
+input{
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+}
+
+button{
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+}
+
+.heading{
+    padding: 10px;
+    margin: 10px;
+}
